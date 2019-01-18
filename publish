@@ -9,8 +9,8 @@ rm -rf .stage \
   && ((git pull origin gh-pages && git rm -r .) || echo "new gh-pages") \
   && echo "copying" \
   && cp  -r ../.dist/* . \
-  && git add . \
   && echo "medash.xyz" > CNAME \
+  && git add . \
   && echo "committing && pushing" \
   && git commit -m "publish" \
   && git push origin gh-pages \

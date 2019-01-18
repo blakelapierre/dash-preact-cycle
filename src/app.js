@@ -43,7 +43,7 @@ const renderers = {
 
     'dashTwitter': DashList('twitter-blakelapierre', TwitterDashRenderer),
 
-    'block': i => <block>{Website(`http://localhost:4444`)}</block>
+    'block': i => <block>{Website(`https://locd.xyz`)}</block>
 
 
   })[fn.name](fn)
@@ -110,14 +110,31 @@ render(
 
 
       // function dashTwitter() {},
-      function p2pRocks() {},
-      function p2pRocks() {},
+      // function 'p2pRocks'() {},
+      mkFn('p2pRocks'),
+      mkFn('p2pRocks'),
+      // nameFunction('p2pRocks'),
 
-      function block() {}
+      mkFn('block')
 
     ]
   }, document.body
 );
+
+//https://stackoverflow.com/a/41854075
+function nameFunction (name, body = () => {}) {
+  return {[name](...args) {return body(...args)}}[name];
+}
+
+function mkFn (name, fn) {
+  const f = new Function();
+  Object.defineProperty(f, 'name', {value: name, writable: false});
+  return f;
+}
+
+function mkFn2 (name, fn) {
+  return new Function(``);
+}
 
 function Dash ({list}, {mutation}) {
   return (
