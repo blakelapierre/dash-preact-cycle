@@ -13,6 +13,7 @@ rm -rf .stage \
   && echo "locd.xyz" > CNAME \
   && echo "committing && pushing" \
   && git commit -m "publish" \
+  && git push origin gh-pages \
   && echo "checking out" \
   && git checkout typescript \
   && echo "publish done"
