@@ -58,6 +58,20 @@ function TwitterDashRenderer (listName, fn, mutation) {
   );
 }
 
+
+function localStorageStateLogThing (logWritesBeforeCompact = 10) {
+
+}
+
+
+/*
+  writeLog
+
+
+*/
+
+
+
 /*
 thinking about other things/projects/etc
 
@@ -65,11 +79,11 @@ thinking about other things/projects/etc
 */
 
 // const socket = new WebSocket(`ws://${window.location.hostname}:3333/lists/${listName}`);
-const socket = new WebSocket(`ws://${window.location.hostname}:3333/lists/`);
+// const socket = new WebSocket(`ws://${window.location.hostname}:3333/lists/`);
 
-socket.addEventListener('message', event => {
-  console.log(event);
-});
+// socket.addEventListener('message', event => {
+//   console.log(event);
+// });
 
 function DashList (listName, renderer) {
   return (fn, mutation) => (
@@ -95,7 +109,7 @@ render(
 
 
 
-      function dashTwitter() {},
+      // function dashTwitter() {},
       function p2pRocks() {},
       function p2pRocks() {},
 

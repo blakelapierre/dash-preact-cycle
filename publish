@@ -10,7 +10,7 @@ rm -rf .stage \
   && echo "copying" \
   && cp  -r ../.dist/* . \
   && git add . \
-  && echo "locd.xyz" > CNAME \
+  && echo "medash.xyz" > CNAME \
   && echo "committing && pushing" \
   && git commit -m "publish" \
   && git push origin gh-pages \
