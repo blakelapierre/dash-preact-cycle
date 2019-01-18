@@ -60,7 +60,15 @@ function TwitterDashRenderer (listName, fn, mutation) {
 
 
 function localStorageStateLogThing (logWritesBeforeCompact = 10) {
+  const log = [];
 
+  return (...args) => {
+    log.push([...args]);
+
+    if (log.length > logWritesBeforeCompact) {
+      //compact
+    }
+  };
 }
 
 
