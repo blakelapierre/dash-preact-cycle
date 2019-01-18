@@ -1,121 +1,120 @@
 import { h, render } from 'preact-cycle';
 
-const ADD_TRACKER_ITEM = ({
-  tracker: {
-    items,
-    inputText,
-    ...trackerProps
-  }, ...props
-}) => ({
-  tracker: {
-    items: items.concat(inputText),
-    inputText: '',
-    ...trackerProps
-  }, ...props
+window.Notification.requestPermission();
+document.body.addEventListener('drop', event => {
+  console.log('drop', event);
+  event.preventDefault();
+  event.stopPropagation();
+  return false;
 });
 
-const SET_TRACKER_TEXT = ({
-  tracker: {
-    inputText,
-    ...trackerProps
-  },
-  ...props
-}, event) => ({
-  tracker: {
-    inputText: event.target.value,
-    ...trackerProps
-  },
-  ...props
+setTimeout(() => new Notification('test'), 5000); // not showing on phone seems to be bug
+
+
+// API
+
+/*
+  ....pretty sure
+
+  postMessage
+
+*/
+
+const renderers = {
+  'string': i => i,
+
+  'function': fn => ({
+    'Websites': { }, // should just be 'option', now that it is function
+    'Twitter':
+      i => <twitter>{Website(`https://twitter.com/${fn(i)}`)}</twitter>,
+    'Github':
+      i => <github>{Website(`https://github.com/${fn(i)}`)}</github>,
+    'reddit':
+      i => <reddit>{Website(`https://old.reddit.com/${fn(i)}`)}</reddit>,
+
+
+
+    'p2pRocks':
+      i =>
+        <p2p-rocks>
+          <t>p2p.rocks</t>
+          {Website(`https://p2p.rocks`)}
+        </p2p-rocks>,
+
+    'dashTwitter': DashList('twitter-blakelapierre', TwitterDashRenderer)
+
+
+  })[fn.name](fn)
+
+};
+
+function TwitterDashRenderer (listName, fn, mutation) {
+  return (
+    <twitter>
+      {listName}
+    </twitter>
+  );
+}
+
+// const socket = new WebSocket(`ws://${window.location.hostname}:3333/lists/${listName}`);
+const socket = new WebSocket(`ws://${window.location.hostname}:3333/lists/`);
+
+socket.addEventListener('message', event => {
+  console.log(event);
 });
 
-const fromEvent = (prev, event) => event.target.value;
+function DashList (listName, renderer) {
+  return (fn, mutation) => (
+    <dash-list>
+      {renderer(listName, fn, mutation)}
+    </dash-list>
+  );
+}
 
-const Tracker = ({tracker:{items, inputText}}, {mutation}) => (
-  <tracker>
-    {items.map(item => <item>{item}</item>)}
-    <TrackerInput inputText={inputText} />
-  </tracker>
-);
 
-const TrackerInput = ({inputText}, {mutation}) => (
-  <tracker-input>
-    <form onSubmit={mutation(ADD_TRACKER_ITEM)} action="javascript:">
-      <input placeholder="New item..." value={inputText} onInput={mutation(SET_TRACKER_TEXT)} autoFocus />
-    </form>
-  </tracker-input>
-);
 
-const Info = ({items}, {info: {metrics}}) => (
-  <info>
-    <headers>
-      {metrics.map(metric => <Metric metric={metric} />)}
-    </headers>
-    <bars>
-      {metrics.map(metric => <Bar value={Math.random() * 100} />)}
-    </bars>
-  </info>
-);
+function addRenderer(fn) {
+  renderers.function[fn.name] = renderers.function[fn.name] || fn;
+}
 
-const Metric = ({metric: {name, units}}) => (
-  <metric>{name} ({units[0]})</metric>
-);
-
-const Bar = ({value}) => (
-  <bar style={{'height': `${value}%`}}>bar</bar>
-);
-
-const SideBySide = ({tracker, info}) => (
-  <side-by-side>
-    <Tracker tracker={tracker} />
-    <Info info={info} />
-  </side-by-side>
-);
-
+//it's going to be .(some)... "incoming communications"
 render(
-  SideBySide, {
-    tracker: {items: [], text: ''},
-    info: {
-      items: [],
-      metrics: [{
-        name: 'Calories',
-        units: ['kcal']
-      },{
-        name: 'Saturated Fat',
-        units: ['g'],
-        group: 'Total Fat'
-      },{
-        name: 'Trans Fat',
-        units: ['g']
-      },{
-        name: 'Monounsaturated Fat',
-        units: ['g'],
-        group: 'Unsaturated Fat'
-      },{
-        name: 'Polyunsaturated Fat',
-        units: ['g'],
-        group: 'Unsaturated Fat'
-      },{
-        name: 'Sugars',
-        units: ['g']
-      },{
-        name: 'Soluble Fiber',
-        units: ['g']
-      },{
-        name: 'Insoluble Fiber',
-        units: ['g']
-      },{
-        name: 'Other Carbohydrates',
-        units: ['g']
-      },{
-        name: 'Protein',
-        units: ['g']
-      },{
-        name: 'Sodium',
-        units: ['mg']
-      },{
-        name: 'Potassium',
-        units: ['mg']
-      }]
-    },
+  Dash, {
+    list: [
+      // function Twitter (fn, i) {//   return 'blakelapierre'; // },
+      // function Github (arg) {//   return 'blakelapierre'; // },
+      // function reddit () { return '/r/all'; }
+
+
+
+      function dashTwitter() {},
+      function p2pRocks() {},
+      function p2pRocks() {},
+
+    ]
   }, document.body
 );
+
+function Dash ({list}, {mutation}) {
+  return (
+    <dash>
+      {list.map(i => <IR i={i} />)}
+    </dash>
+  );
+}
+
+function IR ({i}, {mutation}) {
+  return renderers[typeof i](i, mutation);
+}
+
+
+
+
+
+
+
+
+
+function Website(uri) {
+  return <iframe src={uri} frameborder={0}></iframe>;
+}

@@ -71,6 +71,7 @@ gulp.task('dev', cb => {
 gulp.task('browser-sync',
   () => browserSync({
     server: paths.dev.$,
+    https: true,
     ghostMode: false
   }));
 
