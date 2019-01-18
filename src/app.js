@@ -1,6 +1,7 @@
 import { h, render } from 'preact-cycle';
 
 window.Notification.requestPermission();
+
 document.body.addEventListener('drop', event => {
   console.log('drop', event);
   event.preventDefault();
@@ -30,18 +31,19 @@ const renderers = {
     'Github':
       i => <github>{Website(`https://github.com/${fn(i)}`)}</github>,
     'reddit':
-      i => <reddit>{Website(`https://old.reddit.com/${fn(i)}`)}</reddit>,
+      i => <reddit>{Website(`http://old.reddit.com/${fn(i)}`)}</reddit>,
 
 
 
     'p2pRocks':
       i =>
         <p2p-rocks>
-          <t>p2p.rocks</t>
           {Website(`https://p2p.rocks`)}
         </p2p-rocks>,
 
-    'dashTwitter': DashList('twitter-blakelapierre', TwitterDashRenderer)
+    'dashTwitter': DashList('twitter-blakelapierre', TwitterDashRenderer),
+
+    'block': i => <block>{Website(`http://localhost:4444`)}</block>
 
 
   })[fn.name](fn)
@@ -55,6 +57,12 @@ function TwitterDashRenderer (listName, fn, mutation) {
     </twitter>
   );
 }
+
+/*
+thinking about other things/projects/etc
+
+
+*/
 
 // const socket = new WebSocket(`ws://${window.location.hostname}:3333/lists/${listName}`);
 const socket = new WebSocket(`ws://${window.location.hostname}:3333/lists/`);
@@ -91,6 +99,8 @@ render(
       function p2pRocks() {},
       function p2pRocks() {},
 
+      function block() {}
+
     ]
   }, document.body
 );
@@ -115,6 +125,12 @@ function IR ({i}, {mutation}) {
 
 
 
-function Website(uri) {
-  return <iframe src={uri} frameborder={0}></iframe>;
+function Website(uri, title = true) {
+  return (
+    <website>
+      {title ? <t>{uri}</t> : undefined}
+      <iframe src={uri} frameborder={0}></iframe>
+    </website>
+  );
+
 }
