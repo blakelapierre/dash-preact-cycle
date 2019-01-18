@@ -58,16 +58,88 @@ function TwitterDashRenderer (listName, fn, mutation) {
   );
 }
 
+const wal = localStorageStateLogThing({}, {
+  'test': ([name, value, ...rest]) => {
+    console.log({name, value});
+  }
+});
 
-function localStorageStateLogThing (logWritesBeforeCompact = 10) {
-  const log = [];
+wal('test', 'value', 'rest', 'more');
+
+function localStorageStateLogThing (state, processors, logWritesBeforeCompact = 10, compactsBeforeStateWrite = 5) {
+  const log = [], baseName = 'testName-', stateName = 'state';
+  let nextName = baseName + '0', nextCompactName = baseName + 'compact-0', totalCompacts = 0, compactsSinceLastStateWrite = 0;
+
+  log.splice(0, 0, ...readLogs(baseName, logWritesBeforeCompact));
+
+  // for (let i = 0; i < logWritesBeforeCompact; i++) {
+  //   try {
+  //     const value = JSON.parse(localStorage.getItem(baseName + i));
+
+  //     if (value === null || value === undefined) break;
+
+  //     log.push(value);
+  //   }
+  //   catch (e) {
+  //     break;
+  //   }
+  // }
+
+  // for (let i = 0; i < compactsBeforeStateWrite; i++) {
+
+  // }
+
+  function readLogs (baseName, max) {
+    const log = [];
+    for (let i = 0; i < max; i++) {
+      try {
+        const value = JSON.parse(localStorage.getItem(baseName + i));
+
+        if (value === null || value === undefined) break;
+
+        log.push(value);
+      }
+      catch (e) {
+        break;
+      }
+    }
+    return log;
+  }
+
+  console.log({log});
 
   return (...args) => {
-    log.push([...args]);
+    const value = [...args];
+
+    log.push(value);
+
+    nextName = baseName + (log.length - 1);
+    localStorage.setItem(nextName, JSON.stringify(value));
 
     if (log.length > logWritesBeforeCompact) {
       //compact
+      localStorage.setItem(nextCompactName, JSON.stringify(log));
+
+      totalCompacts++;
+      compactsSinceLastStateWrite++;
+
+      nextCompactName = baseName + 'compact-' + totalCompacts
+
+      if (compactsSinceLastStateWrite > compactsBeforeStateWrite) {
+        localStorage.setItem(stateName, JSON.stringify(state));
+
+        compactsSinceLastStateWrite = 0;
+      }
+
+      for (let i = log.length - 1; i >= 0; i--) {
+        localStorage.removeItem(baseName + i);
+      }
+
+      log.splice(0, log.length - 1);
     }
+
+    // state.process(value);
+    processors[value[0]](value);
   };
 }
 
